@@ -4,6 +4,9 @@ import axios from "axios"
 class ChampionsForm extends Component {
   state = {
     loaded: false,
+    loadMessage: "",
+    disableButton: false,
+    allowDelete: false,
     createCampaignName: "",
     loginCampaignName: "",
     campaignName: "",
@@ -72,18 +75,33 @@ class ChampionsForm extends Component {
 
   handleCreateSubmit = event => {
     event.preventDefault()
-
+    this.setState({
+      loadMessage: "Loading please allow up to 15 seconds...",
+      disableButton: true,
+    })
+    //https://jons-form-api.herokuapp.com
     axios
       .post("https://jons-form-api.herokuapp.com/rors", {
         campaignName: this.state.createCampaignName,
       })
       .then(res => {
-        console.log(res)
-        console.log(res.data)
-        this.setState({
-          loaded: true,
-          campaignName: this.state.createCampaignName,
-        })
+        if ("message" in res.data && res.data.message.code === 11000) {
+          alert("Campaign name already taken please choose another")
+          this.setState({
+            loadMessage: "",
+            disableButton: false,
+          })
+        } else {
+          this.setState({
+            loaded: true,
+            campaignName: this.state.createCampaignName,
+            loadMessage: "",
+            disableButton: false,
+          })
+        }
+      })
+      .catch(function (error) {
+        console.log(error)
       })
   }
 
@@ -95,66 +113,71 @@ class ChampionsForm extends Component {
         campaignName: this.state.loginCampaignName,
       })
       .then(res => {
-        console.log(res)
-        console.log(res.data)
-        console.log(res.data.playerOne.rescuedAllies)
-        this.setState({
-          loaded: true,
-          campaignName: this.state.loginCampaignName,
-          playerOneHero: res.data.playerOne.hero,
-          playerOneTechUpgrade: res.data.playerOne.techUpgrade,
-          playerOneBasicUpgrade: res.data.playerOne.basicUpgrade,
-          playerOneImproved: res.data.playerOne.improved,
-          playerOneRescuedAllies: res.data.playerOne.rescuedAllies,
-          playerOneRemainingHitPoints: res.data.playerOne.hitPoints,
-          playerOneZolasAlgorithm: res.data.playerOne.obligationOne,
-          playerOneMedicalEmergency: res.data.playerOne.obligationTwo,
-          playerOneMartialLaw: res.data.playerOne.obligationThree,
-          playerOneAntiHeroPropaganda: res.data.playerOne.obligationFour,
-          playerTwoHero: res.data.playerTwo.hero,
-          playerTwoTechUpgrade: res.data.playerTwo.techUpgrade,
-          playerTwoBasicUpgrade: res.data.playerTwo.basicUpgrade,
-          playerTwoImproved: res.data.playerTwo.improved,
-          playerTwoRescuedAllies: res.data.playerTwo.rescuedAllies,
-          playerTwoRemainingHitPoints: res.data.playerTwo.hitPoints,
-          playerTwoZolasAlgorithm: res.data.playerTwo.obligationOne,
-          playerTwoMedicalEmergency: res.data.playerTwo.obligationThree,
-          playerTwoMartialLaw: res.data.playerTwo.obligationFour,
-          playerTwoAntiHeroPropaganda: res.data.player,
-          playerThreeHero: res.data.playerThree.hero,
-          playerThreeTechUpgrade: res.data.playerThree.techUpgrade,
-          playerThreeBasicUpgrade: res.data.playerThree.basicUpgrade,
-          playerThreeImproved: res.data.playerThree.improved,
-          playerThreeRescuedAllies: res.data.playerThree.rescuedAllies,
-          playerThreeRemainingHitPoints: res.data.playerThree.hitPoints,
-          playerThreeZolasAlgorithm: res.data.playerThree.obligationOne,
-          playerThreeMedicalEmergency: res.data.playerThree.obligationTwo,
-          playerThreeMartialLaw: res.data.playerThree.obligationThree,
-          playerThreeAntiHeroPropaganda: res.data.playerThree.obligationFour,
-          playerFourHero: res.data.playerFour.hero,
-          playerFourTechUpgrade: res.data.playerFour.techUpgrade,
-          playerFourBasicUpgrade: res.data.playerFour.basicUpgrade,
-          playerFourImproved: res.data.playerFour.improved,
-          playerFourRescuedAllies: res.data.playerFour.rescuedAllies,
-          playerFourRemainingHitPoints: res.data.playerFour.hitPoints,
-          playerFourZolasAlgorithm: res.data.playerFour.obligationOne,
-          playerFourMedicalEmergency: res.data.playerFour.obligationTwo,
-          playerFourMartialLaw: res.data.playerFour.obligationThree,
-          playerFourAntiHeroPropaganda: res.data.playerFour.obligationFour,
-          laserRifle: res.data.laserRifle,
-          energyShield: res.data.energyShield,
-          powerGauntlets: res.data.powerGauntlets,
-          exoSuit: res.data.exoSuit,
-          playerOneEngaged: res.data.playerOneEngaged,
-          playerTwoEngaged: res.data.playerTwoEngaged,
-          playerThreeEngaged: res.data.playerThreeEngaged,
-          playerFourEngaged: res.data.playerFourEngaged,
-          numOfDelayCounters: res.data.numOfDelayCounters,
-          playerOneAllyRemoved: res.data.playerOneAllyRemoved,
-          playerTwoAllyRemoved: res.data.playerTwoAllyRemoved,
-          playerThreeAllyRemoved: res.data.playerThreeAllyRemoved,
-          playerFourAllyRemoved: res.data.playerFourAllyRemoved,
-        })
+        //console.log(res.data.playerOne.rescuedAllies)
+        if (res.data.message === "Wrong username") {
+          alert("Campaign name not found please check spelling/capitilization")
+        } else {
+          this.setState({
+            loaded: true,
+            campaignName: this.state.loginCampaignName,
+            playerOneHero: res.data.playerOne.hero,
+            playerOneTechUpgrade: res.data.playerOne.techUpgrade,
+            playerOneBasicUpgrade: res.data.playerOne.basicUpgrade,
+            playerOneImproved: res.data.playerOne.improved,
+            playerOneRescuedAllies: res.data.playerOne.rescuedAllies,
+            playerOneRemainingHitPoints: res.data.playerOne.hitPoints,
+            playerOneZolasAlgorithm: res.data.playerOne.obligationOne,
+            playerOneMedicalEmergency: res.data.playerOne.obligationTwo,
+            playerOneMartialLaw: res.data.playerOne.obligationThree,
+            playerOneAntiHeroPropaganda: res.data.playerOne.obligationFour,
+            playerTwoHero: res.data.playerTwo.hero,
+            playerTwoTechUpgrade: res.data.playerTwo.techUpgrade,
+            playerTwoBasicUpgrade: res.data.playerTwo.basicUpgrade,
+            playerTwoImproved: res.data.playerTwo.improved,
+            playerTwoRescuedAllies: res.data.playerTwo.rescuedAllies,
+            playerTwoRemainingHitPoints: res.data.playerTwo.hitPoints,
+            playerTwoZolasAlgorithm: res.data.playerTwo.obligationOne,
+            playerTwoMedicalEmergency: res.data.playerTwo.obligationThree,
+            playerTwoMartialLaw: res.data.playerTwo.obligationFour,
+            playerTwoAntiHeroPropaganda: res.data.player,
+            playerThreeHero: res.data.playerThree.hero,
+            playerThreeTechUpgrade: res.data.playerThree.techUpgrade,
+            playerThreeBasicUpgrade: res.data.playerThree.basicUpgrade,
+            playerThreeImproved: res.data.playerThree.improved,
+            playerThreeRescuedAllies: res.data.playerThree.rescuedAllies,
+            playerThreeRemainingHitPoints: res.data.playerThree.hitPoints,
+            playerThreeZolasAlgorithm: res.data.playerThree.obligationOne,
+            playerThreeMedicalEmergency: res.data.playerThree.obligationTwo,
+            playerThreeMartialLaw: res.data.playerThree.obligationThree,
+            playerThreeAntiHeroPropaganda: res.data.playerThree.obligationFour,
+            playerFourHero: res.data.playerFour.hero,
+            playerFourTechUpgrade: res.data.playerFour.techUpgrade,
+            playerFourBasicUpgrade: res.data.playerFour.basicUpgrade,
+            playerFourImproved: res.data.playerFour.improved,
+            playerFourRescuedAllies: res.data.playerFour.rescuedAllies,
+            playerFourRemainingHitPoints: res.data.playerFour.hitPoints,
+            playerFourZolasAlgorithm: res.data.playerFour.obligationOne,
+            playerFourMedicalEmergency: res.data.playerFour.obligationTwo,
+            playerFourMartialLaw: res.data.playerFour.obligationThree,
+            playerFourAntiHeroPropaganda: res.data.playerFour.obligationFour,
+            laserRifle: res.data.laserRifle,
+            energyShield: res.data.energyShield,
+            powerGauntlets: res.data.powerGauntlets,
+            exoSuit: res.data.exoSuit,
+            playerOneEngaged: res.data.playerOneEngaged,
+            playerTwoEngaged: res.data.playerTwoEngaged,
+            playerThreeEngaged: res.data.playerThreeEngaged,
+            playerFourEngaged: res.data.playerFourEngaged,
+            numOfDelayCounters: res.data.numOfDelayCounters,
+            playerOneAllyRemoved: res.data.playerOneAllyRemoved,
+            playerTwoAllyRemoved: res.data.playerTwoAllyRemoved,
+            playerThreeAllyRemoved: res.data.playerThreeAllyRemoved,
+            playerFourAllyRemoved: res.data.playerFourAllyRemoved,
+          })
+        }
+      })
+      .catch(function (error) {
+        console.log(error)
       })
   }
 
@@ -226,9 +249,9 @@ class ChampionsForm extends Component {
         playerThreeAllyRemoved: this.state.playerThreeAllyRemoved,
         playerFourAllyRemoved: this.state.playerFourAllyRemoved,
       })
-      .then(res => {
-        console.log(res)
-        console.log(res.data)
+      .then(res => {})
+      .catch(function (error) {
+        console.log(error)
       })
   }
 
@@ -240,14 +263,15 @@ class ChampionsForm extends Component {
         campaignName: this.state.campaignName,
       })
       .then(res => {
-        console.log(res)
-        console.log(res.data)
         this.setState({
           loaded: false,
           createCampaignName: "",
           loginCampaignName: "",
           campaignName: "",
         })
+      })
+      .catch(function (error) {
+        console.log(error)
       })
   }
 
@@ -274,7 +298,9 @@ class ChampionsForm extends Component {
               value={this.state.createCampaignName}
               onChange={this.onChange}
             ></input>
-            <button type="submit">Create Campaign</button>
+            <button type="submit" disabled={this.state.disableButton}>
+              Create Campaign
+            </button>
             <br />
             <br />
             <br />
@@ -287,11 +313,14 @@ class ChampionsForm extends Component {
               value={this.state.loginCampaignName}
               onChange={this.onChange}
             ></input>
-            <button type="submit">Login</button>
+            <button type="submit" disabled={this.state.disableButton}>
+              Login
+            </button>
             <br />
             <br />
             <br />
           </form>
+          <h1>{this.state.loadMessage}</h1>
         </React.Fragment>
       )
     } else {
@@ -799,10 +828,19 @@ class ChampionsForm extends Component {
           </form>
           <form onSubmit={this.handleDeleteSubmit}>
             <label>Delete Campaign: </label>
-            <button type="submit">Delete</button>s
+            <button type="submit" disabled={!this.state.allowDelete}>
+              Delete
+            </button>
+            <label>Check box to confirm deletion</label>
+            <input
+              type="checkbox"
+              name="allowDelete"
+              checked={this.state.allowDelete}
+              onChange={this.onChange}
+            ></input>
           </form>
           <form onSubmit={this.handleLogoutSubmit}>
-            <label>DLogout of Campaign: </label>
+            <label>Logout of Campaign: </label>
             <button type="submit">Logout</button>
           </form>
         </React.Fragment>
